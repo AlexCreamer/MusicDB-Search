@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  worker:
+    build: ./Worker
+    ports:
+      - "80:80"
+    volumes:
+      - ./Worker/src:/var/www
