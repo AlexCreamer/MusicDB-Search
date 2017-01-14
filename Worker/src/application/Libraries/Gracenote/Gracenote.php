@@ -1,15 +1,16 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php namespace App\Libraries\Gracenote;
 
 // You will need a Gracenote Client ID to use this. Visit https://developer.gracenote.com/ for info.
 
 // Defaults
 if (!defined("GN_DEBUG")) { define("GN_DEBUG", false); }
+use CodeIgniter\HTTP;
+use CodeIgniter\HTTP\IncomingRequest;
+use GuzzleHttp\Client;
 
 // Dependencies
-include(dirname( __FILE__ )."/GracenoteError.class.php");
-include(dirname( __FILE__ )."/HTTP.class.php");
-
-use GuzzleHttp\Client as GuzzleClient;
+//include(dirname( __FILE__ )."/GracenoteError.class.php");
+//include(dirname( __FILE__ )."/HTTP.class.php");
 
 class Gracenote
 {
@@ -24,7 +25,7 @@ class Gracenote
     private $_apiURL    = "https://[[CLID]].web.cddbp.net/webapi/xml/1.0/";
 
     // Constructor
-    public function __construct($clientID, $clientTag, $userID = null)
+    public function __construct($clientID, $clientTag, $userID)
     {
         // Sanity checks
         if ($clientID === null || $clientID == "")   { throw new GNException(GNError::INVALID_INPUT_SPECIFIED, "clientID"); }
@@ -42,30 +43,26 @@ class Gracenote
     {
         // Use members from constructor if no input is specified.
         if ($clientID === null) { $clientID = $this->_clientID."-".$this->_clientTag; }
-
+        //if ($clientID === null) { $clientID = $this->_clientID; }
         // Make sure user doesn't try to register again if they already have a userID in the ctor.
         if ($this->_userID !== null)
         {
             echo "Warning: You already have a userID, no need to register another. Using current ID.\n";
             return $this->_userID;
         }
+		
+		// Do the register request
+        $message = "<QUERIES><QUERY CMD=\"REGISTER\"><CLIENT>" . $clientID . "</CLIENT></QUERY></QUERIES>";                               
+        $client = new Client();
+        $response = $client->post($this->_apiURL, array('content-type' => 'application/xml', 'body'=> $message));
+		$responseXML = new \SimpleXMLElement($response->getBody());
+        try{
+			$this->_userID = $responseXML->RESPONSE->USER;
+		} catch (Exception $e) {
+			error_log ("Error: A faulty ClientID must have been provided. Exception error: " . $e, 0);
+			echo "<br> Error: A USERID was not returned from Gracenote. You may have provided a faulty ClientID. <br>";
+		}
 
-        // Do the register request
-        $request = "<QUERIES>
-                       <QUERY CMD=\"REGISTER\">
-                          <CLIENT>".$clientID."</CLIENT>
-                       </QUERY>
-                    </QUERIES>";
-                
-        $client = new GuzzleClient();
-        $response = $client->request("POST", $this->_apiURL, $request);
-        
-        log_message($response);
-        log_message($response->getBody());
-        log_message($response->getBody->USER);
-        
-        $this->_userID = $response->getBody()->USER;
-        
         // Cache it locally then return to user.
         //$this->_userID = (string)$response->RESPONSE->USER;
         return $this->_userID;
@@ -123,8 +120,9 @@ class Gracenote
                  </OPTION>";
 
         $data = $this->_constructQueryRequest($body, "ALBUM_FETCH");
-        $request = new HTTP($this->_apiURL);
-        $response = $request->post($data);
+		$client = new Client();
+        $response = $client->post($this->_apiURL, array('content-type' => 'application/xml', 'body'=> $data));
+		
         $xml = $this->_checkResponse($response);
 
         $output = array();
@@ -151,8 +149,8 @@ class Gracenote
     // Simply executes the query to Gracenote WebAPI
     protected function _execute($data)
     {
-        $request = new HTTP($this->_apiURL);
-        $response = $request->post($data);
+		$client = new Client();
+        $response = $client->post($this->_apiURL, array('content-type' => 'application/xml', 'body'=> $data));
         return $this->_parseResponse($response);
     }
 
@@ -221,7 +219,7 @@ class Gracenote
         $xml = null;
         try
         {
-            $xml = new \SimpleXMLElement($response);
+            $xml = new \SimpleXMLElement($response->getBody());
         }
         catch (Exception $e)
         {

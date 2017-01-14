@@ -19,7 +19,8 @@
 		"php": ">=7.0",
 		"zendframework/zend-escaper": "^2.5",
 		"vlucas/phpdotenv": "^2.4",
-        "oscarotero/env": "^1.0"
+        "oscarotero/env": "^1.0",
+		"guzzlehttp/guzzle": "6.1.*"
 
 	},
 	"require-dev": {

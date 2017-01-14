@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php namespace App\Libraries\Gracenote;
 
 // A class to handle all external communication via HTTP(S)
 class HTTP
@@ -16,8 +16,6 @@ class HTTP
     private $_type     = HTTP::GET; // Default is GET
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Ctor
     public function __construct($url, $timeout = 10000)
     {
         global $_CONFIG;

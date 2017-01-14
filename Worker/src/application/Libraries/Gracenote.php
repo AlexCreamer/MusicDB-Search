@@ -3,8 +3,8 @@
 // You will need a Gracenote Client ID to use this. Visit https://developer.gracenote.com/ for info.
 
 // Dependencies
-$this->load->library("GNException");
-$this->load->library("HTTP");
+//use App\Libraries\GNException;
+//use App\Libraries("HTTP";
 
 class Gracenote
 {

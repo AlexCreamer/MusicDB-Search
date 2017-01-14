@@ -312,7 +312,7 @@ class App extends BaseConfig
 	| Note: This will NOT disable or override the CodeIgniter-specific
 	|	autoloading.
 	*/
-	public $composerAutoload = false;
+	public $composerAutoload = TRUE;
 
 	/*
 	|--------------------------------------------------------------------------
