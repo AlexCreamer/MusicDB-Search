@@ -1,3 +1,5 @@
+## MusicDB-Search
+
 A simple PHP CodeIgniter4 application for searching information from various music databases and displaying the results to the user.
 
 This application will use modified versions of multiple already built libraries in order to query the databases APIs.
