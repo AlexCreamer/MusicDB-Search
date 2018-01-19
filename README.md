@@ -1,3 +1,5 @@
+## WARNING: This project is discontinued
+
 ## MusicDB-Search
 
 A simple PHP CodeIgniter4 application for searching information from various music databases and displaying the results to the user.
